@@ -24,13 +24,11 @@ item 7
 
 ```{r}
 # MODEL 1: Generalized Linear Model (Logistic Regression)
-# We interpret this as: "How does the PROBABILITY of diabetes change?"
 glm_model <- glm(Outcome ~ Glucose + BMI + Age, 
                  data = diabetes_data, 
                  family = "binomial")
 
 # MODEL 2: Ordinary Least Squares (Linear Regression)
-# We interpret this as: "Fitting a straight line through the data points 
 lm_model <- lm(Outcome ~ Glucose + BMI + Age, 
                data = diabetes_data)
 
@@ -58,13 +56,11 @@ item 8
 # ---------------------------------------------------------
 
 # Model A (The "Simple" Model)
-# We assume ONLY Glucose predicts diabetes.
 model_simple <- glm(Outcome ~ Glucose, 
                     data = diabetes_data, 
                     family = "binomial")
 
 # Model B (The "Complex" Model)
-# We assume Glucose, BMI, and Age all predict diabetes.
 model_complex <- glm(Outcome ~ Glucose + BMI + Age, 
                      data = diabetes_data, 
                      family = "binomial")
@@ -78,15 +74,6 @@ print("--- AIC Comparison (Lower is Better) ---")
 print(paste("Simple Model AIC: ", round(model_simple$aic, 2)))
 print(paste("Complex Model AIC:", round(model_complex$aic, 2)))
 
-# 2. Likelihood Ratio Test (LRT)
-# This formally tests if the Complex model is statistically better 
-# than the Simple model.
-# We use test="Chisq" because we are comparing Chi-squared distributions 
-# of the Log-Likelihoods.
-print("--- Likelihood Ratio Test (ANOVA) ---")
-lr_test <- anova(model_simple, model_complex, test = "Chisq")
-print(lr_test)
-
 ```
 
 item 9
@@ -98,11 +85,6 @@ library(dagitty)
 # ---------------------------------------------------------
 # STEP 1: Construct the Causal Graph (DAG)
 # ---------------------------------------------------------
-# We define a complex structure involving almost all variables:
-# 1. "Confounders" (Age, Pregnancies, Pedigree) cause BMI and Outcome.
-# 2. "Mediators" (Glucose, BP, Insulin) are caused by BMI and cause Outcome.
-# 3. We want to know: Is there still a direct arrow from BMI -> Outcome?
-
 dag_model <- dagitty("dag {
     Age -> BMI
     Age -> Outcome
@@ -116,27 +98,28 @@ dag_model <- dagitty("dag {
     BMI -> Insulin -> Outcome
     BMI -> SkinThickness -> Outcome
     
-    BMI -> Outcome [outcome, exposure]
+    BMI -> Outcome
 }")
+
+exposures(dag_model) <- "BMI"
+outcomes(dag_model) <- "Outcome"
+
+# ---------------------------------------------------------
+# NEW STEP: Plot the DAG Diagram
+# ---------------------------------------------------------
+plot(dag_model)
 
 # ---------------------------------------------------------
 # STEP 2: Derive the Adjustment Set (For DIRECT Effect)
 # ---------------------------------------------------------
-# We ask: "What must I control to see the DIRECT effect of BMI, 
-# blocking the paths through Glucose, BP, etc.?"
-
 adj_set <- adjustmentSets(dag_model, exposure = "BMI", outcome = "Outcome", effect = "direct")
 
 print("--- Required Adjustment Set for Direct Effect ---")
-print(adj_set) 
-# The output will tell us to adjust for EVERYTHING: 
-# {Age, Pregnancies, Pedigree, Glucose, BP, Insulin, SkinThickness}
+print(adj_set)
 
 # ---------------------------------------------------------
 # STEP 3: Perform Causal Analysis (Direct Effect)
 # ---------------------------------------------------------
-
-# We fit the full model with all variables
 causal_model <- glm(Outcome ~ BMI + Age + Pregnancies + DiabetesPedigreeFunction + 
                     Glucose + BloodPressure + Insulin + SkinThickness,
                     data = diabetes_data, 
@@ -148,12 +131,10 @@ causal_model <- glm(Outcome ~ BMI + Age + Pregnancies + DiabetesPedigreeFunction
 print("--- Direct Causal Effect of BMI (Coefficients) ---")
 print(summary(causal_model)$coefficients["BMI", ])
 
-# Check if BMI is still significant after giving credit to Glucose/BP/etc.
 pval <- summary(causal_model)$coefficients["BMI", "Pr(>|z|)"]
 if(pval < 0.05) {
     print("CONCLUSION: BMI has a DIRECT effect on diabetes, distinct from Glucose/BP.")
 } else {
     print("CONCLUSION: BMI acts mostly THROUGH Glucose and other mediators.")
 }
-
 ```

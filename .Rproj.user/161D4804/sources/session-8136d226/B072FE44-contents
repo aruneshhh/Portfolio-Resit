@@ -24,13 +24,11 @@ item 7
 
 ```{r}
 # MODEL 1: Generalized Linear Model (Logistic Regression)
-# We interpret this as: "How does the PROBABILITY of diabetes change?"
 glm_model <- glm(Outcome ~ Glucose + BMI + Age, 
                  data = diabetes_data, 
                  family = "binomial")
 
 # MODEL 2: Ordinary Least Squares (Linear Regression)
-# We interpret this as: "Fitting a straight line through the data points 
 lm_model <- lm(Outcome ~ Glucose + BMI + Age, 
                data = diabetes_data)
 
@@ -58,13 +56,11 @@ item 8
 # ---------------------------------------------------------
 
 # Model A (The "Simple" Model)
-# We assume ONLY Glucose predicts diabetes.
 model_simple <- glm(Outcome ~ Glucose, 
                     data = diabetes_data, 
                     family = "binomial")
 
 # Model B (The "Complex" Model)
-# We assume Glucose, BMI, and Age all predict diabetes.
 model_complex <- glm(Outcome ~ Glucose + BMI + Age, 
                      data = diabetes_data, 
                      family = "binomial")
@@ -77,15 +73,6 @@ model_complex <- glm(Outcome ~ Glucose + BMI + Age,
 print("--- AIC Comparison (Lower is Better) ---")
 print(paste("Simple Model AIC: ", round(model_simple$aic, 2)))
 print(paste("Complex Model AIC:", round(model_complex$aic, 2)))
-
-# 2. Likelihood Ratio Test (LRT)
-# This formally tests if the Complex model is statistically better 
-# than the Simple model.
-# We use test="Chisq" because we are comparing Chi-squared distributions 
-# of the Log-Likelihoods.
-print("--- Likelihood Ratio Test (ANOVA) ---")
-lr_test <- anova(model_simple, model_complex, test = "Chisq")
-print(lr_test)
 
 ```
 
@@ -114,7 +101,6 @@ dag_model <- dagitty("dag {
     BMI -> Outcome
 }")
 
-# OPTIONAL: Define exposure and outcome explicitly
 exposures(dag_model) <- "BMI"
 outcomes(dag_model) <- "Outcome"
 
