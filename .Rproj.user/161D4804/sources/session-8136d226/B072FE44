@@ -3,9 +3,9 @@
     "path": "~/Documents/RU_DATA/SEM1/STAT/portfolio/STATS/portfolio2/portfolio/portfolio1.qmd",
     "project_path": "portfolio1.qmd",
     "type": "quarto_markdown",
-    "hash": "741515749",
+    "hash": "0",
     "contents": "",
-    "dirty": false,
+    "dirty": true,
     "created": 1770999258922.0,
     "source_on_save": false,
     "relative_order": 1,
@@ -19,14 +19,14 @@
         "scrollLine": "0",
         "docOutlineVisible": "1",
         "rmdVisualCollapsedChunks": "",
-        "rmdVisualModeLocation": "2763:3299.5"
+        "rmdVisualModeLocation": "3616:2863"
     },
     "folds": "",
     "lastKnownWriteTime": 1772206838,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1772206838753,
+    "last_content_update": 1772446338156,
     "read_only": false,
     "read_only_alternatives": []
 }
